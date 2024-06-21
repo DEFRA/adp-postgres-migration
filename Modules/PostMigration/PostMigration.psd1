@@ -1,12 +1,16 @@
 @{
     ModuleVersion     = '1.0.0'
-    GUID              = '23e1d032-9704-47f1-a2f3-c39e4a0c3599'
+    GUID              = '58490b96-aa19-4b84-9e93-94b2df16c83f'
     Author            = 'Defra ADP Team'
     CompanyName       = 'Defra'
     Copyright         = '(c) Defra. All rights reserved.'
-    ScriptsToProcess = @('Invoke-PreMigration.ps1')
+    ScriptsToProcess = @('Invoke-PostMigration.ps1')
     FunctionsToExport = @(
-        'Invoke-PreMigration'
+        'Invoke-PostMigration'
+    )
+    
+    RequiredModules   = @(
+        '/Logger/Logger.psd1'
     )
     
     CmdletsToExport   = @()

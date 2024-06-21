@@ -1,5 +1,10 @@
-Invoke-PreMigration
+Import-Module -Name Logger
 
-Invoke-Migration
-
-Invoke-PostMigration
+try {
+    Invoke-PreMigration
+    Invoke-Migration
+    Invoke-PostMigration
+}
+catch {
+    Write-Log -Message "Migration process failed: $_" -Level "ERROR"
+} 
