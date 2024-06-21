@@ -1,10 +1,7 @@
 function Write-Log {
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$Message,
-
-        [ValidateSet("INFO", "WARNING", "ERROR")]
-        [string]$Level = "INFO"
+        [Parameter(Mandatory)][string]$Message,
+        [ValidateSet("INFO", "WARNING", "ERROR")][string]$Level = "INFO"
     )
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
