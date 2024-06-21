@@ -5,14 +5,18 @@
     CompanyName       = 'Defra'
     Copyright         = '(c) Defra. All rights reserved.'
     ScriptsToProcess = @(
+        'Invoke-PreMigration.ps1'
         'Invoke-Migration.ps1'
+        'Invoke-PostMigration.ps1'
     )
     FunctionsToExport = @(
+        'Invoke-PreMigration'
         'Invoke-Migration'
+        'Invoke-PostMigration'
     )
 
     RequiredModules   = @(
-        '/Logger/Logger.psd1'
+        '/Modules/Logger/Logger.psd1'
     )
     
     CmdletsToExport   = @()

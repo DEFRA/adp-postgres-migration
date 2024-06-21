@@ -1,4 +1,5 @@
 Import-Module -Name Logger
+Import-Module -Name Migration
 
 try {
     Invoke-PreMigration
@@ -7,4 +8,4 @@ try {
 }
 catch {
     Write-Log -Message "Migration process failed: $_" -Level "ERROR"
-} 
+}
