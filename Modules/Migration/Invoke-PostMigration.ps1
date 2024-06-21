@@ -1,3 +1,3 @@
 function Invoke-PostMigration {
-    Write-Host "PostMigration: Hello, World!"
+    Write-Log -Message "Post Migration: Hello, World!" -Level "INFO"
 }
