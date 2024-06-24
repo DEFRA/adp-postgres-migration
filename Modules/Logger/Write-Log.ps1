@@ -1,22 +1,34 @@
-function Write-Log {
+function Write-FormatedMessage {
     param(
         [Parameter(Mandatory)][string]$Message,
-        [ValidateSet("INFO", "WARNING", "ERROR")][string]$Level = "INFO"
+        [Parameter(Mandatory)][string]$Color,
+        [string]$Level
     )
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntryString = "[$timestamp] [$Level] $Message"
+    Write-Host $logEntryString -ForegroundColor $Color
+}
 
-    switch ($Level) {
-        "INFO" {
-            Write-Host $logEntryString -ForegroundColor Cyan
-        }
-        "WARNING" {
-            Write-Host $logEntryString -ForegroundColor Yellow
-        }
-        "ERROR" {
-            Write-Host $logEntryString -ForegroundColor Red
-            exit 1
-        }
+function Write-LogInfo {
+    param([Parameter(Mandatory)][string]$Message)
+    Write-FormatedMessage -Message $Message -Color Cyan -Level "INFO"
+}
+
+function Write-LogError {
+    param([Parameter(Mandatory)][string]$Message)
+    Write-FormatedMessage -Message $Message -Color Red -Level "ERROR"
+    exit -1
+}
+
+function Write-LogDebug {
+    param([Parameter(Mandatory)][string]$Message)
+    if ((Test-Path -Path env:SYSTEM_DEBUG) -and ($env:SYSTEM_DEBUG -eq "true")) {
+        Write-FormatedMessage -Message $Message -Color Blue -Level "DEBUG"
     }
+}
+
+function Write-LogWarning {
+    param([Parameter(Mandatory)][string]$Message)
+    Write-FormatedMessage -Message $Message -Color Yellow -Level "WARNING"
 }

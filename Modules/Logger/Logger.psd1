@@ -8,7 +8,10 @@
         'Write-Log.ps1'
     )
     FunctionsToExport = @(
-        'Write-Log'
+        'Write-LogInfo'
+        'Write-LogError'
+        'Write-LogDebug'
+        'Write-LogWarning'
     )
     
     CmdletsToExport   = @()

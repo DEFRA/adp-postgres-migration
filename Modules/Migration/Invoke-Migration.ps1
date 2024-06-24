@@ -1,24 +1,54 @@
 function Invoke-Migration {
     param(
-        [Parameter(Mandatory = $false)][securestring]$AUTH_CLIENT_ID
+        [Parameter(Mandatory)]
+        [string]$PostgreHost,
+        [Parameter(Mandatory)]
+        [string]$PostgrePort,
+        [Parameter(Mandatory)]
+        [string]$DatabaseName,
+        [Parameter(Mandatory)]
+        [string]$UserName,
+        [Parameter(Mandatory)]
+        [string]$AccessToken ,
+        [Parameter(Mandatory)]
+        [string]$ChangeLogFile,
+        [Parameter(Mandatory)]
+        [string]$DefaultSchemaName,
+        [Parameter(Mandatory)]
+        [string]$Command        
     )
 
-    Set-StrictMode -Version Latest
-
-    if ($env:INSTALL_MYSQL) {
-        lpm add mysql --global
+    if (-not (Test-Path $ChangeLogFile)) {
+        Write-LogError "Change log file $ChangeLogFile does not exist."
     }
 
-    if ($args[0] -ne "history" -and $args[0] -ne "init" -and (Get-Command $args[0] -ErrorAction SilentlyContinue)) {
-        & $args
-    }
-    else {
-        if ($args -join " " -match "--defaultsFile" -or $args -join " " -match "--defaults-file" -or $args -join " " -match "--version") {
-            & "/liquibase/liquibase" $args
-        }
-        else {
-            & "/liquibase/liquibase" "--defaultsFile=/liquibase/liquibase.docker.properties" $args
-        }
+    $liquibasePath = "/liquibase/liquibase"
+    $defaultsFilePath = "/liquibase/liquibase.docker.properties"
+    $driver = "org.postgresql.Driver"
+    $url = "jdbc:postgresql://${PostgreHost}:${PostgrePort}/${DatabaseName}"
+
+    if (-not (Test-Path $defaultsFilePath)) {
+        Write-LogError "Liquibase defaults file $defaultsFilePath does not exist."
     }
 
+    Write-LogInfo "Migrating database: $DatabaseName"
+    $baseLiquibaseCommand = "$liquibasePath --defaultsFile=$defaultsFilePath --driver=$driver --url=$url --username='$($UserName)' --changeLogFile=$ChangeLogFile --defaultSchemaName='$($DefaultSchemaName)'"
+    
+    Write-LogInfo "Executing Liquibase status..."
+    $maskedPassword = '********'  
+    Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' status"
+    $liquibaseCommand = "$baseLiquibaseCommand --password='$($AccessToken)' status"
+    Invoke-Expression $liquibaseCommand
+    if ($LASTEXITCODE -ne 0) {
+        Write-LogError "Liquibase status failed with error."
+    }
+    
+    Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' $Command"
+    $liquibaseCommand = "$baseLiquibaseCommand --password='$($AccessToken)' $Command"
+    Invoke-Expression $liquibaseCommand
+    if ($LASTEXITCODE -ne 0) {
+        Write-LogError "Database $DatabaseName migration failed with error."
+    }
+
+    Write-LogInfo "Database $DatabaseName migrated successfully."
 }

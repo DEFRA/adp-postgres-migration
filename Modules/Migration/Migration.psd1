@@ -5,6 +5,8 @@
     CompanyName       = 'Defra'
     Copyright         = '(c) Defra. All rights reserved.'
     ScriptsToProcess = @(
+        'Internal/Invoke-PSQLScript.ps1'
+        'Internal/Grant-PostgresDbAccess.ps1'
         'Invoke-PreMigration.ps1'
         'Invoke-Migration.ps1'
         'Invoke-PostMigration.ps1'
