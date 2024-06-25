@@ -59,11 +59,11 @@ function Add-MIToADGroup {
         $response = Invoke-GraphApi -UriPath $groupUriPath -Method Get
 
         if ($response.value.Count -eq 1) {
-            Write-Debug "Groud Id: $($response.value[0].id) for group $GroupName"
+            Write-LogDebug "Groud Id: $($response.value[0].id) for group $GroupName"
             return $response.value[0]
         }
         else {
-            Write-Error "Group $GroupName not found"
+            Write-LogError "Group $GroupName not found"
             return $null
         }
     }
@@ -80,11 +80,11 @@ function Add-MIToADGroup {
         $response = Invoke-GraphApi -UriPath $spnUriPath -Method Get 
 
         if ($response.value.Count -eq 1) {
-            Write-Debug "Service Principal Id: $($response.value[0].id) for SP $SPName"
+            Write-LogDebug "Service Principal Id: $($response.value[0].id) for SP $SPName"
             return $response.value[0]
         }
         else {
-            Write-Error "Service Principal $SPName not found"
+            Write-LogError "Service Principal $SPName not found"
             return $null
         }
     }

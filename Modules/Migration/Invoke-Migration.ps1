@@ -36,15 +36,6 @@ function Invoke-Migration {
     Write-LogInfo "Migrating database: $DbName"
     $baseLiquibaseCommand = "$liquibasePath --defaultsFile=$defaultsFilePath --driver=$driver --url=$url --username='$($UserName)' --changeLogFile=$ChangeLogFile --defaultSchemaName='$($DefaultSchemaName)'"
     
-    Write-LogInfo "Executing Liquibase status..."
-    $maskedPassword = '********'  
-    Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' status"
-    $liquibaseCommand = "$baseLiquibaseCommand --password='$($accessToken)' status"
-    Invoke-Expression $liquibaseCommand
-    if ($LASTEXITCODE -ne 0) {
-        Write-LogError "Liquibase status failed with error."
-    }
-    
     Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' $Command"
     $liquibaseCommand = "$baseLiquibaseCommand --password='$($accessToken)' $Command"
     Invoke-Expression $liquibaseCommand

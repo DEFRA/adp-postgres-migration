@@ -96,15 +96,15 @@ function Grant-PostgresDbAccess {
         Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToCreatePrincipal"  -PostgresHost $PostgresHost -DatabaseName "postgres" -Username $DbAdminMIName
         Write-LogInfo "Script executed successfully. Principal checked/created and access granted to ${PostgresHost}."
 
-        Write-LogInfo "Granting all permissions to database objects in ${DbName} for ${AdGroupDbWriter}"
+        Write-LogInfo "Granting Writer permissions to database objects in ${DbName} for ${AdGroupDbWriter}"
         Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantAllPermissions" -PostgresHost $PostgresHost -DatabaseName $DbName -Username $DbAdminMIName
         Write-LogInfo "Access successfully granted to ${AdGroupDbWriter} on all database objects."
 
-        Write-LogInfo "Granting read permissions to database objects in ${DbName} for ${AdGroupDbReader}"
+        Write-LogInfo "Granting Reader permissions to database objects in ${DbName} for ${AdGroupDbReader}"
         Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantReadPermissions" -PostgresHost $PostgresHost -DatabaseName $DbName -Username $DbAdminMIName
         Write-LogInfo "Read access successfully granted to database objects for ${AdGroupDbReader}"
     
-        Write-LogInfo "Granting application permissions in ${DbName} to ${ServiceMIName}"
+        Write-LogInfo "Granting Application permissions in ${DbName} to ${ServiceMIName}"
         Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantApplicationPermissions" -PostgresHost $PostgresHost -DatabaseName $DbName -Username $DbAdminMIName
         Write-LogInfo "Application permissions successfully granted to ${ServiceMIName}"
     }

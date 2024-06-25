@@ -19,6 +19,9 @@ function Invoke-PreMigration {
         [string]$ServiceMIName,
 
         [Parameter(Mandatory)]
+        [string]$SubscriptionId,
+
+        [Parameter(Mandatory)]
         [string]$TenantId
     )
 
@@ -34,6 +37,7 @@ function Invoke-PreMigration {
         Write-LogInfo "Granted Postgres DB access to $ServiceMIName, $($AdGroups.DbReader) and $($AdGroups.DbWriter) for $($Postgres.DbName) on $($Postgres.Host)"
         
         Write-LogInfo "Adding member $ServiceMIName to $($AdGroups.DbWriter)"
+        Set-AzContext -Subscription $SubscriptionId | Out-Null
         $spnClientId = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SPNSecretNames.clientIdName -AsPlainText -Debug:$false
         $spnClientSecret = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SPNSecretNames.clientSecretName -AsPlainText -Debug:$false
         Add-MIToADGroup -MIName $ServiceMIName -ADGroupName $AdGroups.DbWriter -ClientId $spnClientId -ClientSecret $spnClientSecret -TenantId $TenantId
