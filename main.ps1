@@ -5,12 +5,12 @@ param(
     [Parameter(Mandatory)]
     [string]$ChangeLogFile
 )
-
 function Test-EnvironmentVariables {
     $requiredVariables = @(
         "POSTGRE_HOST", 
         "POSTGRE_PORT", 
         "POSTGRE_DB_NAME", 
+        "SCHEMA_USERNAME",
         "POSTGRE_SCHEMA",
         "SERVICE_MI_NAME",
         "PLATFORM_MI_NAME",
@@ -54,7 +54,7 @@ try {
         -PostgreHost $env:POSTGRE_HOST `
         -PostgrePort $env:POSTGRE_PORT `
         -DbName $env:POSTGRE_DB_NAME `
-        -UserName $env:POSTGRE_USER `
+        -UserName $env:SCHEMA_USERNAME `
         -ClientId $env:TEAM_MI_CLIENT_ID `
         -ChangeLogFile $ChangeLogFile `
         -DefaultSchemaName $env:POSTGRE_SCHEMA `
