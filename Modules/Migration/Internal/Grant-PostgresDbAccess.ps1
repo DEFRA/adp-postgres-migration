@@ -13,6 +13,9 @@ function Grant-PostgresDbAccess {
         [string]$ServiceMIName,
 
         [Parameter(Mandatory)]
+        [string]$AccessToken,
+
+        [Parameter(Mandatory)]
         [string]$AdGroupDbReader,
 
         [Parameter(Mandatory)]
@@ -44,9 +47,9 @@ function Grant-PostgresDbAccess {
         [void]$builder.Append('     ELSE ')
         [void]$builder.Append("         RAISE NOTICE 'PRINCIPAL FOR MANAGED IDENTITY ALREADY EXISTS:$ServiceMIName';")
         [void]$builder.Append('     END IF; ')
-        [void]$builder.Append("     EXECUTE ( 'GRANT CONNECT ON DATABASE `"$DatabaseName`" TO `"$AdGroupDbWriter`"' );")
-        [void]$builder.Append("     EXECUTE ( 'GRANT CONNECT ON DATABASE `"$DatabaseName`" TO `"$AdGroupDbReader`"' );")
-        [void]$builder.Append("     EXECUTE ( 'GRANT CONNECT ON DATABASE `"$DatabaseName`" TO `"$ServiceMIName`"' );")
+        [void]$builder.Append("     EXECUTE ( 'GRANT CONNECT ON DATABASE `"$DbName`" TO `"$AdGroupDbWriter`"' );")
+        [void]$builder.Append("     EXECUTE ( 'GRANT CONNECT ON DATABASE `"$DbName`" TO `"$AdGroupDbReader`"' );")
+        [void]$builder.Append("     EXECUTE ( 'GRANT CONNECT ON DATABASE `"$DbName`" TO `"$ServiceMIName`"' );")
         [void]$builder.Append("     RAISE NOTICE 'GRANTED CONNECT TO DATABASE';")
         [void]$builder.Append(" EXCEPTION ")
         [void]$builder.Append("     WHEN OTHERS THEN  ")
@@ -75,7 +78,7 @@ function Grant-PostgresDbAccess {
         return $builder.ToString()
     }
 
-    function Get-SQLScriptToGrantServicePermissions {
+    function Get-SQLScriptToGrantApplicationPermissions {
         [System.Text.StringBuilder]$builder = [System.Text.StringBuilder]::new()
         [void]$builder.Append("GRANT CREATE, USAGE ON SCHEMA public TO `"$ServiceMIName`";")
         [void]$builder.Append("GRANT SELECT, UPDATE, INSERT, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA public TO `"$ServiceMIName`";")
@@ -85,28 +88,28 @@ function Grant-PostgresDbAccess {
         return $builder.ToString()
     }
 
-    Write-LogInfo "Checking if Principal exists in ${PostgresHost}. If not, creating Principal and granting connect permissions."
-    Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToCreatePrincipal"  -PostgresHost $PostgresHost -DatabaseName "postgres" -Username $DbAdminMIName
-    Write-LogInfo "Script executed successfully. Principal checked/created and access granted to ${PostgresHost}."
+    try {
 
-    Write-LogInfo "Granting all permissions to database objects for ${AdGroupDbWriter}"
-    Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantAllPermissions" -PostgresHost $PostgresHost -DatabaseName $DatabaseName -Username $DbAdminMIName
-    Write-LogInfo "Access successfully granted to ${AdGroupDbWriter} on all database objects."
+        [Environment]::SetEnvironmentVariable("PGPASSWORD", $AccessToken)
 
+        Write-LogInfo "Checking if Principal exists in ${PostgresHost}. If not, creating Principal and granting connect permissions."
+        Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToCreatePrincipal"  -PostgresHost $PostgresHost -DatabaseName "postgres" -Username $DbAdminMIName
+        Write-LogInfo "Script executed successfully. Principal checked/created and access granted to ${PostgresHost}."
+
+        Write-LogInfo "Granting all permissions to database objects in ${DbName} for ${AdGroupDbWriter}"
+        Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantAllPermissions" -PostgresHost $PostgresHost -DatabaseName $DbName -Username $DbAdminMIName
+        Write-LogInfo "Access successfully granted to ${AdGroupDbWriter} on all database objects."
+
+        Write-LogInfo "Granting read permissions to database objects in ${DbName} for ${AdGroupDbReader}"
+        Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantReadPermissions" -PostgresHost $PostgresHost -DatabaseName $DbName -Username $DbAdminMIName
+        Write-LogInfo "Read access successfully granted to database objects for ${AdGroupDbReader}"
     
-    Write-LogInfo "Granting read permissions to database objects for ${AdGroupDbReader}"
-    Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantReadPermissions" -PostgresHost $PostgresHost -DatabaseName $DatabaseName -Username $DbAdminMIName
-    Write-LogInfo "Read access successfully granted to database objects for ${AdGroupDbReader}"
-
-    
-    Write-LogInfo "Granting application permissions to ${ServiceMIName}"
-    Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantApplicationPermissions" -PostgresHost $PostgresHost -DatabaseName $DatabaseName -Username $DbAdminMIName
-    Write-LogInfo "Application permissions successfully granted to ${ServiceMIName}"
-
-    # Add Team MI to PG Writer AD Group
-    #Write-LogInfo "Adding Team Managed Identity to Postgres Writer AD Group"
-    #[System.IO.DirectoryInfo]$adScriptPath = Join-Path -Path $WorkingDirectory -ChildPath "common/scripts/access-control/aad/Add-ManagedIdToADGroup.ps1"
-    #& $adScriptPath
-
+        Write-LogInfo "Granting application permissions in ${DbName} to ${ServiceMIName}"
+        Invoke-PSQLScript -SqlGenerator "Get-SQLScriptToGrantApplicationPermissions" -PostgresHost $PostgresHost -DatabaseName $DbName -Username $DbAdminMIName
+        Write-LogInfo "Application permissions successfully granted to ${ServiceMIName}"
+    }
+    finally {
+        [Environment]::SetEnvironmentVariable("PGPASSWORD", $null)
+    }
 }
 

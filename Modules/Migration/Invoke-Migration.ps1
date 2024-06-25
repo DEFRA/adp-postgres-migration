@@ -5,11 +5,11 @@ function Invoke-Migration {
         [Parameter(Mandatory)]
         [string]$PostgrePort,
         [Parameter(Mandatory)]
-        [string]$DatabaseName,
+        [string]$DbName,
         [Parameter(Mandatory)]
         [string]$UserName,
         [Parameter(Mandatory)]
-        [string]$AccessToken ,
+        [string]$ClientId,
         [Parameter(Mandatory)]
         [string]$ChangeLogFile,
         [Parameter(Mandatory)]
@@ -25,30 +25,32 @@ function Invoke-Migration {
     $liquibasePath = "/liquibase/liquibase"
     $defaultsFilePath = "/liquibase/liquibase.docker.properties"
     $driver = "org.postgresql.Driver"
-    $url = "jdbc:postgresql://${PostgreHost}:${PostgrePort}/${DatabaseName}"
+    $url = "jdbc:postgresql://${PostgreHost}:${PostgrePort}/${DbName}"
 
     if (-not (Test-Path $defaultsFilePath)) {
         Write-LogError "Liquibase defaults file $defaultsFilePath does not exist."
     }
 
-    Write-LogInfo "Migrating database: $DatabaseName"
+    $accessToken = Get-AccessToken-Federated -ClientId $ClientId -ResourceUrl "https://ossrdbms-aad.database.windows.net"
+    
+    Write-LogInfo "Migrating database: $DbName"
     $baseLiquibaseCommand = "$liquibasePath --defaultsFile=$defaultsFilePath --driver=$driver --url=$url --username='$($UserName)' --changeLogFile=$ChangeLogFile --defaultSchemaName='$($DefaultSchemaName)'"
     
     Write-LogInfo "Executing Liquibase status..."
     $maskedPassword = '********'  
     Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' status"
-    $liquibaseCommand = "$baseLiquibaseCommand --password='$($AccessToken)' status"
+    $liquibaseCommand = "$baseLiquibaseCommand --password='$($accessToken)' status"
     Invoke-Expression $liquibaseCommand
     if ($LASTEXITCODE -ne 0) {
         Write-LogError "Liquibase status failed with error."
     }
     
     Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' $Command"
-    $liquibaseCommand = "$baseLiquibaseCommand --password='$($AccessToken)' $Command"
+    $liquibaseCommand = "$baseLiquibaseCommand --password='$($accessToken)' $Command"
     Invoke-Expression $liquibaseCommand
     if ($LASTEXITCODE -ne 0) {
-        Write-LogError "Database $DatabaseName migration failed with error."
+        Write-LogError "Database $DbName migration failed with error."
     }
 
-    Write-LogInfo "Database $DatabaseName migrated successfully."
+    Write-LogInfo "Database $DbName migrated successfully."
 }

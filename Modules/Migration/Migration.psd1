@@ -7,6 +7,7 @@
     ScriptsToProcess = @(
         'Internal/Invoke-PSQLScript.ps1'
         'Internal/Grant-PostgresDbAccess.ps1'
+        'Internal/Add-MIToADGroup.ps1'
         'Invoke-PreMigration.ps1'
         'Invoke-Migration.ps1'
         'Invoke-PostMigration.ps1'
@@ -19,6 +20,7 @@
 
     RequiredModules   = @(
         '/Modules/Logger/Logger.psd1'
+        '/Modules/Auth/Auth.psd1'
     )
     
     CmdletsToExport   = @()
