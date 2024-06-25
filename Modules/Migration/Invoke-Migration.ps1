@@ -7,7 +7,7 @@ function Invoke-Migration {
         [Parameter(Mandatory)]
         [string]$DbName,
         [Parameter(Mandatory)]
-        [string]$UserName,
+        [string]$DbUserName,
         [Parameter(Mandatory)]
         [string]$ClientId,
         [Parameter(Mandatory)]
@@ -34,8 +34,9 @@ function Invoke-Migration {
     $accessToken = Get-AccessToken-Federated -ClientId $ClientId -ResourceUrl "https://ossrdbms-aad.database.windows.net"
     
     Write-LogInfo "Migrating database: $DbName"
-    $baseLiquibaseCommand = "$liquibasePath --defaultsFile=$defaultsFilePath --driver=$driver --url=$url --username='$($UserName)' --changeLogFile=$ChangeLogFile --defaultSchemaName='$($DefaultSchemaName)'"
+    $baseLiquibaseCommand = "$liquibasePath --defaultsFile=$defaultsFilePath --driver=$driver --url=$url --username='$($DbUserName)' --changeLogFile=$ChangeLogFile --defaultSchemaName='$($DefaultSchemaName)'"
     
+    $maskedPassword = '********'
     Write-LogDebug "Executing Liquibase command: $baseLiquibaseCommand --password='$($maskedPassword)' $Command"
     $liquibaseCommand = "$baseLiquibaseCommand --password='$($accessToken)' $Command"
     Invoke-Expression $liquibaseCommand

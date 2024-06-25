@@ -59,7 +59,8 @@ function Add-MIToADGroup {
         $response = Invoke-GraphApi -UriPath $groupUriPath -Method Get
 
         if ($response.value.Count -eq 1) {
-            Write-LogDebug "Groud Id: $($response.value[0].id) for group $GroupName"
+            Write-LogInfo "Group $GroupName found"
+            Write-LogDebug "Groud Id: $($response.value[0].id)"
             return $response.value[0]
         }
         else {
@@ -80,7 +81,8 @@ function Add-MIToADGroup {
         $response = Invoke-GraphApi -UriPath $spnUriPath -Method Get 
 
         if ($response.value.Count -eq 1) {
-            Write-LogDebug "Service Principal Id: $($response.value[0].id) for SP $SPName"
+            Write-LogInfo "Service Principal $SPName found"
+            Write-LogDebug "Service Principal Id: $($response.value[0].id)"
             return $response.value[0]
         }
         else {
@@ -98,14 +100,13 @@ function Add-MIToADGroup {
             [string]$DirectoryObjectId
         )
     
-        Write-LogInfo "Checking if $DirectoryObjectId is already a member of group $GroupId"
-    
+        Write-LogDebug "Checking if $DirectoryObjectId is already a member of group $GroupId"
         $checkMembershipUriPath = "/groups/$GroupId/members?`$count=true&`$filter=id eq '$DirectoryObjectId'"
         $isMember = Invoke-GraphApi -UriPath $checkMembershipUriPath -Method Get
     
         if ($isMember -eq 0) {
+
             Write-LogInfo "Adding $MIName to group $ADGroupName"
-    
             $groupsUriPath = "/groups/$GroupId/members/`$ref"
     
             $body = @{
@@ -115,7 +116,6 @@ function Add-MIToADGroup {
             $response = Invoke-GraphApi -UriPath $groupsUriPath -Method Post -Body $body
     
             Write-LogInfo "Added $MIName to group $ADGroupName"
-            
             return $response
         } else {
             Write-LogInfo "$MIName is already a member of group $ADGroupName"

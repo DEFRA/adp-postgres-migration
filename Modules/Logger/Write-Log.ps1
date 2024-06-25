@@ -5,13 +5,25 @@ function Write-FormatedMessage {
         [string]$Level
     )
 
+    # Define ANSI color codes
+    $colors = @{
+        "Cyan" = "`e[36m"
+        "Red" = "`e[31m"
+        "Blue" = "`e[34m"
+        "Yellow" = "`e[33m"
+        "Default" = "`e[0m" 
+    }
+
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = @{
         Timestamp = $timestamp
         Level = $Level
         Message = $Message
     }
-    Write-Host ($logEntry | ConvertTo-Json -Compress)  -ForegroundColor $Color
+    $colorCode = $null -ne $colors[$Color] ? $colors[$Color] : $colors["Default"]
+    $resetCode = $colors["Default"]
+    
+    Write-Host ($colorCode + ($logEntry | ConvertTo-Json -Compress) + $resetCode)
 }
 
 function Write-LogInfo {
