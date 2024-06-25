@@ -17,7 +17,7 @@ function Test-EnvironmentVariables {
         [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) 
     }
     if ($null -ne $missingVariables -and $missingVariables.Count -gt 0) {
-        Write-LogError "Missing environment variables: $($missingVariables -join ', ')"
+        Write-LogError "Missing required variables: $($missingVariables -join ', ')"
     }
 
     if (-not $env:AZURE_FEDERATED_TOKEN_FILE -or -not (Test-Path $env:AZURE_FEDERATED_TOKEN_FILE)) {
@@ -45,14 +45,14 @@ try {
                         -SubscriptionId $env:SSV_SHARED_SUBSCRIPTION_ID -TenantId $env:AZURE_TENANT_ID 
 
     Write-LogInfo "Starting migration..."
-    Invoke-Migration -PostgreHost $env:POSTGRE_HOST -PostgrePort $env:POSTGRES_PORT `
-                     -DbName $env:POSTGRE_DB_NAME -DbUserName $env:SCHEMA_USERNAME `
+    Invoke-Migration -PostgreHost $env:POSTGRES_HOST -PostgrePort $env:POSTGRES_PORT `
+                     -DbName $env:POSTGRES_DB_NAME -DbUserName $env:SCHEMA_USERNAME `
                      -ClientId $env:TEAM_MI_CLIENT_ID -ChangeLogFile $ChangeLogFile `
                      -DefaultSchemaName $env:SCHEMA_NAME -Command $Command.ToLower()
     
     Write-LogInfo "Starting post-migration..."        
-    Invoke-PostMigration -PostgresHost $env:POSTGRE_HOST `
-                         -DbName $env:POSTGRE_DB_NAME -DbUserName $env:SCHEMA_USERNAME `
+    Invoke-PostMigration -PostgresHost $env:POSTGRES_HOST `
+                         -DbName $env:POSTGRES_DB_NAME -DbUserName $env:SCHEMA_USERNAME `
                          -ServiceMIName $env:SERVICE_MI_NAME -AdGroupDbReader $env:PG_READER_AD_GROUP `
                          -ClientId $env:TEAM_MI_CLIENT_ID
 }

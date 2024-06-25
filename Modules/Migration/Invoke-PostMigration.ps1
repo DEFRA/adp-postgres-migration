@@ -22,10 +22,9 @@ function Invoke-PostMigration {
     Write-LogInfo "Granting Database scheams access to $ServiceMIName for $DbName on $PostgresHost"
 
     $accessToken = Get-AccessToken-Federated -ClientId $ClientId -ResourceUrl "https://ossrdbms-aad.database.windows.net"
+    
     Grant-PostgresDBScheamAccess -PostgresHost $PostgresHost -DbName $DbName `
                                  -DbUserName $DbUserName -ServiceMIName $ServiceMIName `
                                  -AccessToken $accessToken `
                                  -AdGroupDbReader $AdGroupDbReader
-    
-    Write-LogInfo "Granted Database scheams access to $ServiceMIName for $DbName on $PostgresHost"
 }

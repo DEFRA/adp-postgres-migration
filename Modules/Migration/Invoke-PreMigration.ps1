@@ -26,23 +26,27 @@ function Invoke-PreMigration {
     )
 
     try {
-        
-        Connect-AzAccount-Federated -ClientId $DbAdmin.ClientId
+       
+        $null = Connect-AzAccount-Federated -ClientId $DbAdmin.ClientId 
+        $null = Set-AzContext -Subscription $SubscriptionId -ErrorAction Stop
 
-        Write-LogInfo "Granting Database access to $ServiceMIName, $($AdGroups.DbReader) and $($AdGroups.DbWriter) for $($Postgres.DbName) on $($Postgres.Host)"
+        $spnClientId = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SPNSecretNames.clientIdName -AsPlainText).Trim()
+        $spnClientSecret = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SPNSecretNames.clientSecretName -AsPlainText).Trim()
+
+        # Grant PostgreSQL Database access
+        Write-LogInfo "Granting Database access to $ServiceMIName, $($AdGroups.DbReader) and $($AdGroups.DbWriter) for $($Postgres.DbName) on $($Postgres.Host)" 
         $pgpassword = (Get-AzAccessToken -ResourceUrl "https://ossrdbms-aad.database.windows.net").Token
+        
         Grant-PostgresDbAccess -PostgresHost $Postgres.Host -DbName $Postgres.DbName `
             -DbAdminMIName $DbAdmin.MIName -ServiceMIName $ServiceMIName `
-            -AccessToken $pgpassword -AdGroupDbReader $AdGroups.DbReader -AdGroupDbWriter $AdGroups.DbWriter                           
-        Write-LogInfo "Granted Database access to $ServiceMIName, $($AdGroups.DbReader) and $($AdGroups.DbWriter) for $($Postgres.DbName) on $($Postgres.Host)"
+            -AccessToken $pgpassword -AdGroupDbReader $AdGroups.DbReader -AdGroupDbWriter $AdGroups.DbWriter
         
+        # Add member to AD Group
         Write-LogInfo "Adding member $ServiceMIName to $($AdGroups.DbWriter)"
-        Set-AzContext -Subscription $SubscriptionId | Out-Null
-        $spnClientId = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SPNSecretNames.clientIdName -AsPlainText -Debug:$false
-        $spnClientSecret = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SPNSecretNames.clientSecretName -AsPlainText -Debug:$false
         Add-MIToADGroup -MIName $ServiceMIName -ADGroupName $AdGroups.DbWriter -ClientId $spnClientId -ClientSecret $spnClientSecret -TenantId $TenantId
+
     }
     finally {
-        Disconnect-AzAccount -ErrorAction SilentlyContinue | Out-Null
+        $null = Disconnect-AzAccount -ErrorAction SilentlyContinue
     }
 }
