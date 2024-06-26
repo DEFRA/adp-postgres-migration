@@ -68,8 +68,8 @@ RUN pwsh -Command "Install-Module -Name Az.KeyVault -Force -AllowClobber"
 
 WORKDIR /
 
-COPY ./Modules ./Modules
-COPY ./main.ps1 ./
+COPY Modules ./Modules
+COPY main.ps1 ./
 
 ENV PSModulePath="/Modules"
 

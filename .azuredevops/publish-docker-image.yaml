@@ -33,7 +33,7 @@ resources:
       name: DEFRA/adp-pipeline-common
       endpoint: DEFRA
       type: github
-      ref: refs/tags/1.0.0-latest
+      ref: pp/docker-build
 
 extends:
   template: /pipelines/common-infra-deploy.yaml@DEFRA-ADPPipelineCommon
@@ -73,3 +73,4 @@ extends:
               -Command "BuildAndPush" 
               -PSHelperDirectory "$(Pipeline.Workspace)/s/PipelineCommonFiles/templates/powershell/modules/ps-helpers"
               -DockerFilePath $(Pipeline.Workspace)/s/self/Dockerfile
+              -WorkingDirectory $(Pipeline.Workspace)/s/self
