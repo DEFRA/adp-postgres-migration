@@ -68,12 +68,14 @@ RUN pwsh -Command "Install-Module -Name Az.KeyVault -Force -AllowClobber"
 
 WORKDIR /
 
-COPY Modules ./Modules
-COPY main.ps1 ./
+COPY ./Modules ./Modules
+COPY ./main.ps1 ./
+
+COPY --chown=liquibase:liquibase --chmod=755 changelog ./changelog
 
 ENV PSModulePath="/Modules"
 
 SHELL ["pwsh", "-Command"]
 
 ENTRYPOINT ["pwsh", "-File", "/main.ps1"]
-CMD [""]
+CMD ["-Command","update", "-ChangeLogFile","/changelog/db.changelog.xml"]
