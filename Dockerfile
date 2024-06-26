@@ -6,7 +6,6 @@ RUN groupadd --gid 1001 liquibase && \
     useradd --uid 1001 --gid liquibase liquibase && \
     mkdir /liquibase && chown liquibase /liquibase
 
-
 # Download and install Liquibase
 WORKDIR /liquibase
 
@@ -18,7 +17,6 @@ RUN wget -q -O liquibase-${LIQUIBASE_VERSION}.tar.gz "https://github.com/liquiba
     tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz && \
     rm liquibase-${LIQUIBASE_VERSION}.tar.gz && \
     ln -s /liquibase/liquibase /usr/local/bin/liquibase && \
-    ln -s /liquibase/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh && \
     liquibase --version
 
 ARG LPM_VERSION=0.2.6
@@ -60,7 +58,6 @@ RUN apt-get update && \
     dpkg -i packages-microsoft-prod.deb && \
     apt-get update && \
     apt-get install -y powershell postgresql-client && \
-    # Cleanup to reduce image size
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /packages-microsoft-prod.deb
@@ -74,9 +71,11 @@ WORKDIR /
 COPY Modules ./Modules
 COPY main.ps1 ./
 
+COPY --chown=liquibase:liquibase --chmod=755 changelog ./changelog
+
 ENV PSModulePath="/Modules"
 
 SHELL ["pwsh", "-Command"]
 
 ENTRYPOINT ["pwsh", "-File", "/main.ps1"]
-CMD ["-Command","update", "-ChangeLogFile","/liquibase/changelog.xml"]
+CMD ["-Command","update", "-ChangeLogFile","/changelog/db.changelog.xml"]

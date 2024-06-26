@@ -7,7 +7,7 @@ param(
 )
 function Test-EnvironmentVariables {
     $requiredVariables = @(
-        "POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_DB_NAME", "SCHEMA_USERNAME","SCHEMA_NAME", 
+        "POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_DB_NAME", "POSTGRES_DB_USERNAME","SCHEMA_NAME", 
         "SERVICE_MI_NAME", "PLATFORM_MI_NAME", 
         "PG_WRITER_AD_GROUP","PG_READER_AD_GROUP", 
         "SSV_SHARED_SUBSCRIPTION_ID","DB_AAD_ADMIN_CLIENT_ID", "AZURE_TENANT_ID","TEAM_MI_CLIENT_ID", 
@@ -46,13 +46,13 @@ try {
 
     Write-LogInfo "Starting migration..."
     Invoke-Migration -PostgreHost $env:POSTGRES_HOST -PostgrePort $env:POSTGRES_PORT `
-                     -DbName $env:POSTGRES_DB_NAME -DbUserName $env:SCHEMA_USERNAME `
+                     -DbName $env:POSTGRES_DB_NAME -DbUserName $env:POSTGRES_DB_USERNAME `
                      -ClientId $env:TEAM_MI_CLIENT_ID -ChangeLogFile $ChangeLogFile `
                      -DefaultSchemaName $env:SCHEMA_NAME -Command $Command.ToLower()
     
     Write-LogInfo "Starting post-migration..."        
     Invoke-PostMigration -PostgresHost $env:POSTGRES_HOST `
-                         -DbName $env:POSTGRES_DB_NAME -DbUserName $env:SCHEMA_USERNAME `
+                         -DbName $env:POSTGRES_DB_NAME -DbUserName $env:POSTGRES_DB_USERNAME `
                          -ServiceMIName $env:SERVICE_MI_NAME -AdGroupDbReader $env:PG_READER_AD_GROUP `
                          -ClientId $env:TEAM_MI_CLIENT_ID
 }
