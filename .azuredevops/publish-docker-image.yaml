@@ -63,7 +63,7 @@ extends:
             type: "script"
             scriptType: AzureCLI
             azureCLIScriptType: pscore
-            path: "templates/powershell/build/BuildAndPushDockerImage.ps1"
+            path: "$(Pipeline.Workspace)/s/PipelineCommonFiles/templates/powershell/build/BuildAndPushDockerImage.ps1"
             scriptArguments: >
               -AcrName $(ssvSharedAcrName)
               -AcrRepoName "${{ variables.dockerImageName }}" 
