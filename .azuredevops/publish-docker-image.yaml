@@ -33,7 +33,7 @@ resources:
       name: DEFRA/adp-pipeline-common
       endpoint: DEFRA
       type: github
-      ref: refs/heads/main
+      ref: refs/tags/1.0.0-latest
 
 extends:
   template: /pipelines/common-infra-deploy.yaml@DEFRA-ADPPipelineCommon
