@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("update", "rollback")]
+    [ValidateSet("update")]
     [string]$Command,
 
     [Parameter(Mandatory)]
