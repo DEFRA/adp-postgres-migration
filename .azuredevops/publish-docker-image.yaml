@@ -59,7 +59,7 @@ extends:
     groupedDeployments:
       - name: SharedResources
         deployments:
-          - name: Publish Powershell Docker Image
+          - name: Publish Docker Image
             type: "script"
             scriptType: AzureCLI
             scriptRepo: PipelineCommonFiles
@@ -72,4 +72,4 @@ extends:
               -ImageCachePath $(Pipeline.Workspace)/docker 
               -Command "BuildAndPush" 
               -PSHelperDirectory "$(Pipeline.Workspace)/s/PipelineCommonFiles/templates/powershell/modules/ps-helpers"
-              -DockerFilePath $(Pipeline.Workspace)/s/self/adp-postgres-migration/Dockerfile
+              -DockerFilePath $(Pipeline.Workspace)/s/self/Dockerfile
