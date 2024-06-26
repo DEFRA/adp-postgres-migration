@@ -62,7 +62,6 @@ extends:
           - name: Publish Docker Image
             type: "script"
             scriptType: AzureCLI
-            scriptRepo: PipelineCommonFiles
             azureCLIScriptType: pscore
             path: "templates/powershell/build/BuildAndPushDockerImage.ps1"
             scriptArguments: >
