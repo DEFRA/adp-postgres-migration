@@ -110,9 +110,9 @@ function Add-MIToADGroup {
     
         Write-LogDebug "Checking if $DirectoryObjectId is already a member of group $GroupId"
         $checkMembershipUriPath = "/groups/$GroupId/members?`$count=true&`$filter=id eq '$DirectoryObjectId'"
-        $isMember = Invoke-GraphApi -UriPath $checkMembershipUriPath -Method Get
+        $memberExists  = Invoke-GraphApi -UriPath $checkMembershipUriPath -Method Get
     
-        if ($isMember -eq 0) {
+        if ($null -eq $memberExists) {
 
             Write-LogInfo "Adding $MIName to group $ADGroupName"
             $groupsUriPath = "/groups/$GroupId/members/`$ref"
