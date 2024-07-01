@@ -1,0 +1,76 @@
+parameters:
+  - name: publishFromFeature
+    displayName: Publish from feature branch
+    type: boolean
+    default: false
+
+variables:
+  - name: dockerImageName
+    value: "adp-postgres-migration"
+  - name: dockerImageVersion
+    value: "1.0.0"
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - "main"
+  paths:
+    include:
+      - '*'
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - '*'
+
+resources:
+  repositories:
+    - repository: DEFRA-ADPPipelineCommon
+      name: DEFRA/adp-pipeline-common
+      endpoint: DEFRA
+      type: github
+      ref: refs/tags/1.0.0-latest
+
+extends:
+  template: /pipelines/common-infra-deploy.yaml@DEFRA-ADPPipelineCommon
+  parameters:
+    privateAgentName: ''
+    agentImage: 'ubuntu-latest'
+    projectName: $(projectName)
+    deployFromFeature: ${{ parameters.publishFromFeature }}
+    environments:
+      - name: "ssv3"
+        serviceConnection: AZD-ADP-SSV3
+        deploymentBranches:
+          - "refs/heads/main"
+        developmentEnvironment: true
+        azureRegions:
+          primary: "UKSouth"
+      - name: "ssv5"
+        serviceConnection: AZR-ADP-SSV5
+        deploymentBranches:
+          - "refs/heads/main"
+        azureRegions:
+          primary: "UKSouth"
+    groupedDeployments:
+      - name: SharedResources
+        deployments:
+          - name: Publish Docker Image
+            type: "script"
+            scriptType: AzureCLI
+            scriptRepo: PipelineCommonFiles
+            azureCLIScriptType: pscore
+            path: "templates/powershell/build/BuildAndPushDockerImage.ps1"
+            scriptArguments: >
+              -AcrName $(ssvSharedAcrName)
+              -AcrRepoName "${{ variables.dockerImageName }}" 
+              -ImageVersion  ${{ variables.dockerImageVersion }} 
+              -ImageCachePath $(Pipeline.Workspace)/docker 
+              -Command "BuildAndPush" 
+              -PSHelperDirectory "$(Pipeline.Workspace)/s/PipelineCommonFiles/templates/powershell/modules/ps-helpers"
+              -DockerFilePath $(Pipeline.Workspace)/s/self/Dockerfile
+              -WorkingDirectory $(Pipeline.Workspace)/s/self
