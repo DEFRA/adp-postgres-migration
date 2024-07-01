@@ -19,6 +19,9 @@ function Invoke-PreMigration {
         [string]$ServiceMIName,
 
         [Parameter(Mandatory)]
+        [string]$TeamMIName,
+
+        [Parameter(Mandatory)]
         [string]$SubscriptionId,
 
         [Parameter(Mandatory)]
@@ -42,8 +45,8 @@ function Invoke-PreMigration {
             -AccessToken $pgpassword -AdGroupDbReader $AdGroups.DbReader -AdGroupDbWriter $AdGroups.DbWriter
         
         # Add member to AD Group
-        Write-LogInfo "Adding member $ServiceMIName to $($AdGroups.DbWriter)"
-        Add-MIToADGroup -MIName $ServiceMIName -ADGroupName $AdGroups.DbWriter -ClientId $spnClientId -ClientSecret $spnClientSecret -TenantId $TenantId
+        Write-LogInfo "Adding member $TeamMIName to $($AdGroups.DbWriter)"
+        Add-MIToADGroup -MIName $TeamMIName -ADGroupName $AdGroups.DbWriter -ClientId $spnClientId -ClientSecret $spnClientSecret -TenantId $TenantId
 
     }
     finally {

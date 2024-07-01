@@ -42,9 +42,17 @@ function Add-MIToADGroup {
             Write-LogDebug "JSON body for API request: $jsonBody"
         }
 
-        $response = Invoke-RestMethod -Uri "https://graph.microsoft.com/v1.0/$($UriPath)" -Method $Method -Headers $headers -Body $jsonBody
-
-        return $response
+        try {
+            $response = Invoke-RestMethod -Uri "https://graph.microsoft.com/v1.0/$($UriPath)" -Method $Method -Headers $headers -Body $jsonBody
+            return $response
+        } catch [Microsoft.PowerShell.Commands.HttpResponseException] {
+            if ($_.Exception.Response.StatusCode -eq 'NotFound') {
+                Write-LogDebug "Resource not found: UriPath: $UriPath"
+                return $null
+            } else {
+                throw $_
+            }
+        }
     }
     
     function Get-AADGroup {

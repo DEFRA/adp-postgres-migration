@@ -20,7 +20,7 @@ function Invoke-PSQLScript {
         
     }
     catch {
-        throw
+        throw $_
     }
     finally {
         if (Test-Path $tempFile) {

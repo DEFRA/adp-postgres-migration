@@ -8,7 +8,7 @@ param(
 function Test-EnvironmentVariables {
     $requiredVariables = @(
         "POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_DB_NAME", "POSTGRES_DB_USERNAME","SCHEMA_NAME", 
-        "SERVICE_MI_NAME", "PLATFORM_MI_NAME", 
+        "PLATFORM_MI_NAME","TEAM_MI_NAME","SERVICE_MI_NAME",
         "PG_WRITER_AD_GROUP","PG_READER_AD_GROUP", 
         "SSV_SHARED_SUBSCRIPTION_ID","DB_AAD_ADMIN_CLIENT_ID", "AZURE_TENANT_ID","TEAM_MI_CLIENT_ID", 
         "KEY_VAULT_NAME", "SP_CLIENT_ID_KV", "SP_CLIENT_SECRET_KV"
@@ -41,7 +41,7 @@ try {
                         -AdGroups: @{ DbReader =  $env:PG_READER_AD_GROUP ; DbWriter =  $env:PG_WRITER_AD_GROUP } `
                         -KeyVaultName $env:KEY_VAULT_NAME `
                         -SPNSecretNames @{ clientIdName = $env:SP_CLIENT_ID_KV; clientSecretName = $env:SP_CLIENT_SECRET_KV } `
-                        -ServiceMIName $env:SERVICE_MI_NAME `
+                        -ServiceMIName $env:SERVICE_MI_NAME -TeamMIName $env:TEAM_MI_NAME `
                         -SubscriptionId $env:SSV_SHARED_SUBSCRIPTION_ID -TenantId $env:AZURE_TENANT_ID 
 
     Write-LogInfo "Starting migration..."
