@@ -8,7 +8,7 @@ variables:
   - name: dockerImageName
     value: "adp-postgres-migration"
   - name: dockerImageVersion
-    value: "0.0.2"
+    value: "1.0.0"
 
 trigger:
   batch: true
