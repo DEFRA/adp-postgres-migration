@@ -66,6 +66,8 @@ RUN pwsh -Command "Set-PSRepository -Name PSGallery -InstallationPolicy Trusted"
 RUN pwsh -Command "Install-Module -Name Az.Accounts -Force -AllowClobber"
 RUN pwsh -Command "Install-Module -Name Az.KeyVault -Force -AllowClobber"
 
+USER liquibase
+
 WORKDIR /
 
 COPY Modules ./Modules
